@@ -1,11 +1,3 @@
-Todas as dependências do projeto:
-
-pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
-
-pip install Flask
-
-pip install flask-restful
-
 aniso8601==9.0.1
 cachetools==4.2.2
 certifi==2020.12.5
