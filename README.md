@@ -7,3 +7,5 @@ Open this project in any IDE of your choice and go to your IDE terminal:
 ~~~
 pip install -r requirements.txt
 ~~~
+Open http://127.0.0.1:5000/ with your browser to see the result.
+You can see the search returns in `http://127.0.0.1:5000/pesquisa/cesar`
