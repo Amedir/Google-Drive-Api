@@ -13,5 +13,5 @@ You can see the search returns in http://127.0.0.1:5000/pesquisa/name_file and s
 # Learn More
 To learn more about Google Drive API and FLASK-RESTful, take a look at the following content:
 * [Google Drive API documentation](https://developers.google.com/drive/api/v3/about-sdk?hl=pt_BR) - learn about Drive API and features
-* [Flask](https://flask.palletsprojects.com/en/2.0.x/) - learn about routes configurations and API 
 * [Flask-RESTful](https://flask-restful.readthedocs.io/en/latest/) - learn about routes configurations and API 
+* [Flask](https://flask.palletsprojects.com/en/2.0.x/) - learn about routes configurations and API 
