@@ -2,11 +2,8 @@ This is a project with [Python](https://www.python.org/downloads/) and [Google D
 
 # Getting Started
 * Download [Python 3.9](https://www.python.org/downloads/)
-* Download [Pycharm Community](https://www.jetbrains.com/pt-br/pycharm/download/#section=windows)
 
-Open this project on Pycharm. Select the "Base interpreter" (...\Python39\python.exe) and confirm "Creating virtual environment"
-
-Open Pycharm terminal:
+Open this project in any IDE of your choice and go to your IDE terminal:
 ~~~
 pip install -r requirements.txt
 ~~~
