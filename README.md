@@ -6,6 +6,8 @@ This is a project with [Python](https://www.python.org/downloads/) and [Google D
 Open this project in any IDE of your choice and go to your IDE terminal:
 ~~~
 pip install -r requirements.txt
+# later
+py app.py
 ~~~
 Open http://127.0.0.1:5000/ with your browser to see the result. 
 
