@@ -9,7 +9,7 @@ pip install -r requirements.txt
 ~~~
 Open http://127.0.0.1:5000/ with your browser to see the result. 
 
-You can see the search returns in http://127.0.0.1:5000/pesquisa/name_file and see the specifc folder return in http://127.0.0.1:5000/name_folder/. The file `app.py` is responsible for all route configuration.  
+You can see the search returns in http://127.0.0.1:5000/pesquisa/name_folder and see the specifc folder return in http://127.0.0.1:5000/name_folder/. The file `app.py` is responsible for all route configuration.  
 
 # Learn More
 To learn more about Google Drive API and FLASK-RESTful, take a look at the following content:
