@@ -17,7 +17,7 @@ class ListarPastas(Resource):
         folder_id = '1TSY3KWrVYZQY2SdTivbYgI1VdFjnoO4O'
         query = f"parents = '{folder_id}' and trashed=false and mimeType = 'application/vnd.google-apps.folder'"
 
-        response = service.files().list(q = query, fields='nextPageToken, files(id, name, mimeType, webViewLink, iconLink, viewedByMeTime)').execute()
+        response = service.files().list(q = query, fields='nextPageToken, files(id, name, mimeType, webViewLink, iconLink)').execute()
         files = response.get('files')
         nextPageToken = response.get('nextPageToken')
 
@@ -30,8 +30,21 @@ class ListarPastas(Resource):
 
 # lista todos os arquivos ou pastas a partir da pasta selecionada
 class SelecionaPastas(Resource):
-    def get(self, nome):
-        pass
+    def get(self, id):
+        folder_id = id
+        query = f"parents = '{folder_id}' and trashed=false and mimeType != 'application/vnd.google-apps.folder'"
+
+        response = service.files().list(q = query,
+                                        fields = 'nextPageToken, files(id, name, mimeType, webViewLink, iconLink)').execute()
+        files = response.get('files')
+        nextPageToken = response.get('nextPageToken')
+
+        while nextPageToken:
+            response = service.files().list(q = query, pageToken = nextPageToken).execute()
+            files.extend(response.get('files'))
+            nextPageToken = response.get('nextPageToken')
+
+        return response
 
 class Pesquisa(Resource):
     def get(self, nome):
@@ -50,7 +63,7 @@ class Pesquisa(Resource):
         return response
 
 api.add_resource(ListarPastas, '/')
-api.add_resource(SelecionaPastas, '/<string:nome>/')
+api.add_resource(SelecionaPastas, '/<string:id>/')
 api.add_resource(Pesquisa, '/pesquisa/<string:nome>')
 
 # /
