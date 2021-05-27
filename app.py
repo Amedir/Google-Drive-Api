@@ -1,15 +1,88 @@
-from flask import Flask, session, abort
+from flask import Flask, session, abort, redirect, request
 from Google import Create_Service
 from flask_restful import Resource, Api
+from flask_httpauth import HTTPBasicAuth
+
+# import para sistema de login
+from google_auth_oauthlib.flow import Flow
+from pip._vendor import cachecontrol
+from google.oauth2 import id_token
+import google.auth.transport.requests
+import os
+import pathlib
+import requests
 
 CLIENT_SECRET_FILE = 'Client_Secret.json'
 API_NAME = 'drive'
 API_VERSION = 'v3'
-SCOPES = ['https://www.googleapis.com/auth/drive']
+SCOPES = ["https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/userinfo.profile",
+          "https://www.googleapis.com/auth/userinfo.email",
+          "openid"]
 
 service = Create_Service(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
+auth = HTTPBasicAuth()
 app = Flask(__name__)
 api = Api(app)
+app.secret_key = b'8q;\xc8Y.\xc0\x7f'
+
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+
+GOOGLE_CLIENT_ID = "470181059605-uiii7hhq17aml3efcg1f7jr4da3tmkvh.apps.googleusercontent.com"
+client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "Client_Secret.json")
+
+flow = Flow.from_client_secrets_file(
+    client_secrets_file = client_secrets_file,
+    scopes = ["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email",
+              "openid"],
+    redirect_uri = "http://127.0.0.1:5000/callback"
+)
+
+
+def login_is_required(function):
+    def wrapper(*args, **kwargs):
+        if "google_id" not in session:
+            return abort(401)  # Authorization required
+        else:
+            return function()
+
+    return wrapper
+
+
+class Login(Resource):
+    def get(self):
+        authorization_url, state = flow.authorization_url()
+        session["state"] = state
+        return redirect(authorization_url)
+
+
+class CallBack(Resource):
+    def get(self):
+        flow.fetch_token(authorization_response = request.url)
+
+        if not session["state"] == request.args["state"]:
+            abort(500)  # State does not match!
+
+        credentials = flow.credentials
+        request_session = requests.session()
+        cached_session = cachecontrol.CacheControl(request_session)
+        token_request = google.auth.transport.requests.Request(session = cached_session)
+
+        id_info = id_token.verify_oauth2_token(
+            id_token = credentials._id_token,
+            request = token_request,
+            audience = GOOGLE_CLIENT_ID
+        )
+
+        session["google_id"] = id_info.get("sub")
+        session["name"] = id_info.get("name")
+        return redirect("/")
+
+
+class Logout(Resource):
+    def get(self):
+        session.clear()
+        return redirect("/")
 
 
 # Lista todas as pastas (processos) a partir do folder_id
@@ -31,8 +104,7 @@ class ListarPastas(Resource):
             files.extend(response.get('files'))
             nextPageToken = response.get('nextPageToken')
 
-        print(files[0])
-        return files
+        return response
 
 
 # lista todos os arquivos ou pastas a partir da pasta selecionada
@@ -73,10 +145,12 @@ class Pesquisa(Resource):
         return response
 
 
-
 api.add_resource(ListarPastas, '/')
 api.add_resource(SelecionaPastas, '/teste/<string:id>')
 api.add_resource(Pesquisa, '/pesquisa/<string:nome>')
+api.add_resource(Login, '/login')
+api.add_resource(CallBack, '/callback')
+api.add_resource(Logout, '/logout')
 
 # /
 # /paginaProcessos/
