@@ -2,14 +2,13 @@ from flask import Flask, session, abort, redirect, request
 from Google import Create_Service
 from flask_restful import Resource, Api
 from flask_httpauth import HTTPBasicAuth
-
-# import para sistema de login
 from google_auth_oauthlib.flow import Flow
 from pip._vendor import cachecontrol
 from google.oauth2 import id_token
 import google.auth.transport.requests
 import os
 import requests
+from pyngrok import ngrok
 
 CLIENT_SECRET_FILE = 'Client_Secret.json'
 API_NAME = 'drive'
@@ -74,13 +73,14 @@ class CallBack(Resource):
 
         session["google_id"] = id_info.get("sub")
         session["name"] = id_info.get("name")
-        return redirect("/")
+
+        return redirect("/files")
 
 
 class Logout(Resource):
     def get(self):
         session.clear()
-        return redirect("/")
+        return redirect("/files")
 
 
 # Lista todas as pastas (processos) a partir do folder_id
@@ -129,9 +129,10 @@ class SelecionaPastas(Resource):
 class Pesquisa(Resource):
     def get(self, nome):
         page_token = None
+        folder_id = '1TSY3KWrVYZQY2SdTivbYgI1VdFjnoO4O'
         while True:
             response = service.files().list(
-                q = f"fullText contains '{nome}' and mimeType = 'application/vnd.google-apps.folder' and trashed=false",
+                q = f"parents = '{folder_id}' and fullText contains '{nome}' and mimeType = 'application/vnd.google-apps.folder' and trashed=false",
                 fields = 'nextPageToken, files(id, name, mimeType, webViewLink, iconLink)',
                 pageToken = page_token
             ).execute()
@@ -142,19 +143,16 @@ class Pesquisa(Resource):
 
         return response
 
+    def post(self, nome):
+        pass
 
-api.add_resource(ListarPastas, '/')
-api.add_resource(SelecionaPastas, '/teste/<string:id>')
-api.add_resource(Pesquisa, '/pesquisa/<string:nome>')
+
+api.add_resource(ListarPastas, '/files')
 api.add_resource(Login, '/login')
 api.add_resource(CallBack, '/callback')
 api.add_resource(Logout, '/logout')
-
-# /
-# /paginaProcessos/
-# /paginaEdição/
-# /processos/<String:name>/
-# /pesquisa/
+api.add_resource(SelecionaPastas, '/processo/<string:id>')
+api.add_resource(Pesquisa, '/pesquisa/<string:nome>')
 
 if __name__ == '__main__':
     app.run(debug = True)
