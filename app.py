@@ -1,4 +1,5 @@
 from flask import Flask, session, abort, redirect, request
+from flask_cors import CORS
 from Google import Create_Service
 from flask_restful import Resource, Api
 from flask_httpauth import HTTPBasicAuth
@@ -8,7 +9,6 @@ from google.oauth2 import id_token
 import google.auth.transport.requests
 import os
 import requests
-from pyngrok import ngrok
 
 CLIENT_SECRET_FILE = 'Client_Secret.json'
 API_NAME = 'drive'
@@ -21,6 +21,7 @@ SCOPES = ["https://www.googleapis.com/auth/drive",
 service = Create_Service(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
 auth = HTTPBasicAuth()
 app = Flask(__name__)
+CORS(app)
 api = Api(app)
 app.secret_key = b'8q;\xc8Y.\xc0\x7f'
 
@@ -142,9 +143,6 @@ class Pesquisa(Resource):
                 break
 
         return response
-
-    def post(self, nome):
-        pass
 
 
 api.add_resource(ListarPastas, '/files')
